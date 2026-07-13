@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button"
 import { TransactionTable } from "@/components/transactions/TransactionTable"
 import { TransactionFilters } from "@/components/transactions/TransactionFilters"
 import { TransactionForm } from "@/components/transactions/TransactionForm"
+import { PageTitle } from "@/components/layout/PageTitle"
 import type { Transaction } from "@/types/transaction"
 
 export type SortMode = "date-desc" | "date-asc" | "amount-desc" | "amount-asc"
@@ -40,7 +41,7 @@ export default function TransactionsPage() {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="text-2xl font-display font-black accent-underline">Transactions</h1>
+        <PageTitle>Transactions</PageTitle>
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="size-4 mr-2" />
           Add Transaction

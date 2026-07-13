@@ -98,7 +98,7 @@ export function BottomNav() {
               <span className="text-sm text-muted-foreground">Theme</span>
               <ThemeToggle />
             </div>
-            <p className="text-center text-[10px] text-muted-foreground/50 pt-2 pb-1">v0.2.2</p>
+            <p className="text-center text-[10px] text-muted-foreground/50 pt-2 pb-1">v0.6.0</p>
           </div>
         </SheetContent>
       </Sheet>

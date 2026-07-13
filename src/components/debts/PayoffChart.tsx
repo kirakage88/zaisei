@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from "chart.js"
 import { Card, CardContent } from "@/components/ui/card"
-import { useTheme } from "@/components/theme-provider"
+import { useChartColors } from "@/hooks/useChartColors"
 import type { SnowballResult } from "@/lib/snowball"
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip)
@@ -19,20 +19,8 @@ interface PayoffChartProps {
   result: SnowballResult | null
 }
 
-const DEBT_COLORS = [
-  "#6B8F5E",
-  "#8C9686",
-  "#78716C",
-  "#B96A4A",
-  "#2B5F8A",
-  "#D4A04A",
-]
-
 export function PayoffChart({ result }: PayoffChartProps) {
-  const { theme } = useTheme()
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+  const colors = useChartColors()
 
   const chartData = useMemo(() => {
     if (!result || result.timeline.length === 0) return null
@@ -56,8 +44,8 @@ export function PayoffChart({ result }: PayoffChartProps) {
         const snap = s.debts.find((d) => d.name === name)
         return snap ? snap.remaining : 0
       }),
-      borderColor: DEBT_COLORS[i % DEBT_COLORS.length],
-      backgroundColor: DEBT_COLORS[i % DEBT_COLORS.length] + "30",
+      borderColor: colors.debtPalette[i % colors.debtPalette.length],
+      backgroundColor: colors.debtPalette[i % colors.debtPalette.length] + "30",
       fill: true,
       tension: 0.3,
       pointRadius: 0,
@@ -66,7 +54,7 @@ export function PayoffChart({ result }: PayoffChartProps) {
     }))
 
     return { labels, datasets }
-  }, [result])
+  }, [result, colors])
 
   if (!chartData) return null
 
@@ -86,7 +74,7 @@ export function PayoffChart({ result }: PayoffChartProps) {
                 legend: { display: false },
                 tooltip: {
                   enabled: true,
-                  backgroundColor: isDark ? "#2A2624" : "#FFFFFF",
+                  backgroundColor: colors.card,
                   titleFont: { size: 11 },
                   bodyFont: { size: 11 },
                   padding: 8,
@@ -105,7 +93,7 @@ export function PayoffChart({ result }: PayoffChartProps) {
                 },
                 y: {
                   display: true,
-                  grid: { color: isDark ? "#352F2C20" : "#E4E0DB40" },
+                  grid: { color: colors.gridColor },
                   ticks: {
                     font: { size: 10 },
                     callback: (v) => `₱${Number(v).toLocaleString()}`,

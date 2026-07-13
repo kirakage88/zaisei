@@ -6,6 +6,7 @@ import { DebtForm } from "@/components/debts/DebtForm"
 import { SnowballCalculator } from "@/components/debts/SnowballCalculator"
 import { PayoffChart } from "@/components/debts/PayoffChart"
 import { AmortizationTable } from "@/components/debts/AmortizationTable"
+import { PageTitle } from "@/components/layout/PageTitle"
 import type { Debt } from "@/types/debt"
 
 export default function DebtsPage() {
@@ -28,7 +29,7 @@ export default function DebtsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-display font-black accent-underline">Debts</h1>
+      <PageTitle>Debts</PageTitle>
 
       <div className="mt-6">
         <DebtList onAdd={handleAdd} onEdit={handleEdit} />

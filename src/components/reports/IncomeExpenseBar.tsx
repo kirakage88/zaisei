@@ -9,7 +9,7 @@ import {
 } from "chart.js"
 import { Card, CardContent } from "@/components/ui/card"
 import { useTransactions } from "@/hooks/useTransactions"
-import { useTheme } from "@/components/theme-provider"
+import { useChartColors } from "@/hooks/useChartColors"
 
 ChartJS.register(CategoryScale, LinearScale, BarElement, Tooltip)
 
@@ -20,11 +20,7 @@ interface IncomeExpenseBarProps {
 
 export function IncomeExpenseBar({ dateFrom, dateTo }: IncomeExpenseBarProps) {
   const { transactions } = useTransactions()
-  const { theme } = useTheme()
-
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+  const colors = useChartColors()
 
   const chartData = useMemo(() => {
     const now = new Date()
@@ -55,16 +51,13 @@ export function IncomeExpenseBar({ dateFrom, dateTo }: IncomeExpenseBarProps) {
       }
     })
 
-    const incomeColor = isDark ? "#7FA372" : "#6B8F5E"
-    const expenseColor = isDark ? "#A8A29E" : "#78716C"
-
     return {
       labels: months.map((m) => m.label),
       datasets: [
         {
           label: "Income",
           data: months.map((m) => m.income),
-          backgroundColor: incomeColor + "CC",
+          backgroundColor: colors.accent + "CC",
           borderRadius: 4,
           barPercentage: 0.7,
           categoryPercentage: 0.6,
@@ -72,14 +65,14 @@ export function IncomeExpenseBar({ dateFrom, dateTo }: IncomeExpenseBarProps) {
         {
           label: "Expenses",
           data: months.map((m) => m.expense),
-          backgroundColor: expenseColor + "99",
+          backgroundColor: colors.nezumi + "99",
           borderRadius: 4,
           barPercentage: 0.7,
           categoryPercentage: 0.6,
         },
       ],
     }
-  }, [transactions, isDark, dateFrom, dateTo])
+  }, [transactions, colors, dateFrom, dateTo])
 
   return (
     <Card>
@@ -108,7 +101,7 @@ export function IncomeExpenseBar({ dateFrom, dateTo }: IncomeExpenseBarProps) {
                 legend: { display: false },
                 tooltip: {
                   enabled: true,
-                  backgroundColor: isDark ? "#2A2624" : "#FFFFFF",
+                  backgroundColor: colors.card,
                   titleFont: { size: 11 },
                   bodyFont: { size: 11 },
                   padding: 8,
@@ -125,7 +118,7 @@ export function IncomeExpenseBar({ dateFrom, dateTo }: IncomeExpenseBarProps) {
                   ticks: { font: { size: 10 } },
                 },
                 y: {
-                  grid: { color: isDark ? "#352F2C20" : "#E4E0DB40" },
+                  grid: { color: colors.gridColor },
                   ticks: {
                     font: { size: 10 },
                     callback: (v) => `₱${Number(v).toLocaleString()}`,

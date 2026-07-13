@@ -15,6 +15,7 @@
   --color-rikyu: #8C9686;
   --color-accent-active: #6B8F5E;
   --color-accent-resting: #8C9686;
+  --color-positive: #6B8F5E;
   --color-negative: #B96A4A;
 
   /* shadcn semantic mapping — light */
@@ -52,6 +53,7 @@
   --color-rikyu: #8C9686;
   --color-accent-active: #7FA372;
   --color-accent-resting: #8C9686;
+  --color-positive: #7FA372;
   --color-negative: #B96A4A;
 
   --color-background: #1C1917;
@@ -73,6 +75,92 @@
   --color-border: #352F2C;
   --color-input: #352F2C;
   --color-ring: #7FA372;
+}
+
+/* ============================================
+   Sakura theme — Light
+   ============================================ */
+.sakura {
+  --color-sumi: #2B1E22;
+  --color-kami: #FFF6F7;
+  --color-nezumi: #A8919A;
+  --color-usuzumi: #F0D6DA;
+  --color-rikyu: #E8899C;
+  --color-accent-active: #E8899C;
+  --color-accent-resting: #F4C6CE;
+  --color-positive: #A8C3A0;
+  --color-negative: #E4767B;
+
+  --color-background: #FFF6F7;
+  --color-foreground: #2B1E22;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #2B1E22;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #2B1E22;
+  --color-primary: #E8899C;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #FFF0F2;
+  --color-secondary-foreground: #2B1E22;
+  --color-muted: #FFF0F2;
+  --color-muted-foreground: #A8919A;
+  --color-accent: #F4C6CE;
+  --color-accent-foreground: #2B1E22;
+  --color-destructive: #E4767B;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #F0D6DA;
+  --color-input: #F0D6DA;
+  --color-ring: #E8899C;
+
+  /* Softer, rounder shape language */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+}
+
+/* ============================================
+   Sakura theme — Dark
+   ============================================ */
+.sakura.dark {
+  --color-sumi: #FAF0F2;
+  --color-kami: #3A2A30;
+  --color-nezumi: #C4AAB2;
+  --color-usuzumi: #4D3842;
+  --color-rikyu: #F2A3B3;
+  --color-accent-active: #F2A3B3;
+  --color-accent-resting: #F4C6CE;
+  --color-positive: #A8C3A0;
+  --color-negative: #E4767B;
+
+  --color-background: #3A2A30;
+  --color-foreground: #FAF0F2;
+  --color-card: #47323A;
+  --color-card-foreground: #FAF0F2;
+  --color-popover: #47323A;
+  --color-popover-foreground: #FAF0F2;
+  --color-primary: #F2A3B3;
+  --color-primary-foreground: #2B1E22;
+  --color-secondary: #4A3540;
+  --color-secondary-foreground: #FAF0F2;
+  --color-muted: #4A3540;
+  --color-muted-foreground: #C4AAB2;
+  --color-accent: #F4C6CE;
+  --color-accent-foreground: #2B1E22;
+  --color-destructive: #C4545A;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #563E48;
+  --color-input: #563E48;
+  --color-ring: #F2A3B3;
+}
+
+/* Sakura card depth — soft pink ambient shadow, no hard border */
+.sakura [data-slot="card"] {
+  border-color: transparent;
+  box-shadow: 0 2px 10px rgba(232, 137, 156, 0.12);
+}
+.sakura [data-slot="card"]:hover {
+  box-shadow: 0 4px 16px rgba(232, 137, 156, 0.18);
+  transform: translateY(-2px);
 }
 
 @layer base {
@@ -134,6 +222,20 @@
   border-radius: 1px;
   animation: underline-grow 500ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
   margin-top: 0.5rem;
+}
+
+/* ============================================
+   Sakura petal motif — blooms from center
+   ============================================ */
+@keyframes petal-bloom {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.sakura-petal {
+  display: inline-block;
+  animation: petal-bloom 500ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+  transform-origin: center;
 }
 
 /* ============================================
@@ -258,7 +360,8 @@ button[data-slot="button"][data-size="icon-sm"]:active {
   .sheet-slide-out-bottom,
   .sheet-slide-in-top,
   .sheet-slide-out-top,
-  .accent-underline::after {
+  .accent-underline::after,
+  .sakura-petal {
     animation: none !important;
   }
 }

@@ -33,6 +33,15 @@ import { useAccounts } from "@/hooks/useAccounts"
 import { ACCOUNT_TYPES, ACCOUNT_ICONS } from "@/lib/constants"
 import type { Account } from "@/types/account"
 
+// Brand-color exception: account icon badges may use real-world brand colors
+// (e.g. GCash blue, a bank's own brand color) for recognition. This is the
+// ONE exception to the sumi/rikyu-nezumi and sakura token systems. The exception
+// applies only to the small icon badge on account cards — it must not bleed into
+// buttons, active states, charts, links, or any other UI element, which must
+// continue using the current theme's accent token exclusively. For account types
+// with no obvious real-world brand color (e.g. generic "Cash" or "Wallet"), fall
+// back to a neutral color from the current theme's resting/secondary token rather
+// than inventing a new brand-like color.
 const ACCOUNT_COLORS = [
   "#C73E3E",
   "#2B5F8A",

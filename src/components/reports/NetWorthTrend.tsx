@@ -12,18 +12,14 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { useAccounts } from "@/hooks/useAccounts"
 import { useDebts } from "@/hooks/useDebts"
-import { useTheme } from "@/components/theme-provider"
+import { useChartColors } from "@/hooks/useChartColors"
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip)
 
 export function NetWorthTrend() {
   const { accounts } = useAccounts()
   const { debts } = useDebts()
-  const { theme } = useTheme()
-
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+  const colors = useChartColors()
 
   const chartData = useMemo(() => {
     const activeAccounts = accounts.filter((a) => !a.isArchived && a.type !== "credit" && a.type !== "loan")
@@ -58,21 +54,18 @@ export function NetWorthTrend() {
       months.push({ label: "Now", value: netWorth })
     }
 
-    const lineColor = isDark ? "#7FA372" : "#6B8F5E"
-    const fillColor = isDark ? "rgba(127,163,114,0.1)" : "rgba(107,143,94,0.12)"
-
     return {
       labels: months.map((m) => m.label),
       datasets: [
         {
           data: months.map((m) => m.value),
-          borderColor: lineColor,
+          borderColor: colors.accent,
           backgroundColor: (ctx: any) => {
             const chart = ctx.chart
             const { ctx: c, chartArea } = chart
             if (!chartArea) return "transparent"
             const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
-            g.addColorStop(0, fillColor)
+            g.addColorStop(0, colors.accentFill)
             g.addColorStop(1, "transparent")
             return g
           },
@@ -84,7 +77,7 @@ export function NetWorthTrend() {
         },
       ],
     }
-  }, [accounts, debts, isDark])
+  }, [accounts, debts, colors])
 
   return (
     <Card>
@@ -102,7 +95,7 @@ export function NetWorthTrend() {
                 legend: { display: false },
                 tooltip: {
                   enabled: true,
-                  backgroundColor: isDark ? "#2A2624" : "#FFFFFF",
+                  backgroundColor: colors.card,
                   titleFont: { size: 11 },
                   bodyFont: { size: 11 },
                   padding: 8,
@@ -122,7 +115,7 @@ export function NetWorthTrend() {
                 },
                 y: {
                   display: true,
-                  grid: { color: isDark ? "#352F2C20" : "#E4E0DB40" },
+                  grid: { color: colors.gridColor },
                   ticks: {
                     font: { size: 10 },
                     callback: (v) => `₱${Number(v).toLocaleString()}`,

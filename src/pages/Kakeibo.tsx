@@ -6,6 +6,7 @@ import { KakeiboMonthSetup } from "@/components/kakeibo/KakeiboMonthSetup"
 import { KakeiboEnvelopes } from "@/components/kakeibo/KakeiboEnvelopes"
 import { WeeklyCheckIn } from "@/components/kakeibo/WeeklyCheckIn"
 import { KakeiboHistory } from "@/components/kakeibo/KakeiboHistory"
+import { PageTitle } from "@/components/layout/PageTitle"
 
 function useAutoSpent(month: { year: number; month: number }) {
   const startOfMonth = new Date(month.year, month.month - 1, 1)
@@ -89,7 +90,7 @@ export default function KakeiboPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-display font-black accent-underline">Kakeibo</h1>
+      <PageTitle>Kakeibo</PageTitle>
 
       <div className="mt-6 space-y-6">
         {!activeMonth ? (

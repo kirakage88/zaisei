@@ -9,23 +9,13 @@ import { Card, CardContent } from "@/components/ui/card"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/lib/db"
 import { formatCurrency } from "@/lib/utils"
+import { useChartColors } from "@/hooks/useChartColors"
 import type { KakeiboMonth } from "@/types/kakeibo"
 
 ChartJS.register(ArcElement, Tooltip)
 
 interface SpendingEnvelopeDonutProps {
   month: KakeiboMonth
-}
-
-const ENVELOPE_COLORS: Record<string, string> = {
-  Needs: "#1C1917",
-  Wants: "#78716C",
-  Savings: "#6B8F5E",
-}
-const ENVELOPE_COLORS_DARK: Record<string, string> = {
-  Needs: "#FAFAF9",
-  Wants: "#A8A29E",
-  Savings: "#7FA372",
 }
 
 function useAutoSpent(year: number, month: number) {
@@ -55,24 +45,27 @@ function useAutoSpent(year: number, month: number) {
 
 export function SpendingEnvelopeDonut({ month }: SpendingEnvelopeDonutProps) {
   const spent = useAutoSpent(month.year, month.month)
-  const isDark = document.documentElement.classList.contains("dark")
+  const colors = useChartColors()
 
-  const { labels, data, total, colors } = useMemo(() => {
+  const { labels, data, total, envelopeColors } = useMemo(() => {
     const envs = [
       { label: "Needs", value: spent.needs, allocated: month.needsAllocated },
       { label: "Wants", value: spent.wants, allocated: month.wantsAllocated },
       { label: "Savings", value: spent.savings, allocated: month.savingsAllocated },
     ]
     const total = envs.reduce((s, e) => s + e.value, 0)
+    const envelopeColors = envs.map((e) => {
+      if (e.label === "Needs") return colors.sumi
+      if (e.label === "Wants") return colors.nezumi
+      return colors.accent // Savings
+    })
     return {
       labels: envs.map((e) => e.label),
       data: envs.map((e) => e.value),
       total,
-      colors: envs.map((e) =>
-        isDark ? ENVELOPE_COLORS_DARK[e.label] : ENVELOPE_COLORS[e.label]
-      ),
+      envelopeColors,
     }
-  }, [spent, month, isDark])
+  }, [spent, month, colors])
 
   if (total === 0) {
     return (
@@ -100,7 +93,7 @@ export function SpendingEnvelopeDonut({ month }: SpendingEnvelopeDonutProps) {
                 datasets: [
                   {
                     data,
-                    backgroundColor: colors,
+                    backgroundColor: envelopeColors,
                     borderColor: "transparent",
                     borderWidth: 0,
                     hoverOffset: 6,
@@ -140,7 +133,7 @@ export function SpendingEnvelopeDonut({ month }: SpendingEnvelopeDonutProps) {
                   <span className="flex items-center gap-1.5">
                     <span
                       className="size-2 rounded-full"
-                      style={{ backgroundColor: colors[i] }}
+                      style={{ backgroundColor: envelopeColors[i] }}
                     />
                     {label}
                   </span>

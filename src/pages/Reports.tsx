@@ -10,6 +10,7 @@ import { DrillDownTable } from "@/components/reports/DrillDownTable"
 import { Card, CardContent } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { EXPENSE_CATEGORIES } from "@/lib/constants"
+import { PageTitle } from "@/components/layout/PageTitle"
 
 export default function ReportsPage() {
   const { transactions } = useTransactions()
@@ -49,7 +50,7 @@ export default function ReportsPage() {
 
   return (
     <div>
-      <h1 className="text-2xl font-display font-black accent-underline">Reports</h1>
+      <PageTitle>Reports</PageTitle>
 
       <div className="mt-6">
         <DateRangeFilter dateFrom={dateFrom} dateTo={dateTo} onChange={(f, t) => { setDateFrom(f); setDateTo(t) }} />

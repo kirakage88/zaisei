@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button"
 import { useTheme } from "@/components/theme-provider"
 
 export function ThemeToggle() {
-  const { theme, setTheme } = useTheme()
+  const { mode, setMode } = useTheme()
 
   const cycle = () => {
     const root = document.documentElement
     root.classList.add("theme-transition")
 
-    if (theme === "light") setTheme("dark")
-    else if (theme === "dark") setTheme("system")
-    else setTheme("light")
+    if (mode === "light") setMode("dark")
+    else if (mode === "dark") setMode("system")
+    else setMode("light")
 
     setTimeout(() => root.classList.remove("theme-transition"), 350)
   }

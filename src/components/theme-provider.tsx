@@ -1,58 +1,92 @@
-import { createContext, useContext, useEffect, useState } from "react"
+import { createContext, useContext, useEffect, useState, useCallback } from "react"
 
-type Theme = "dark" | "light" | "system"
+type Mode = "dark" | "light" | "system"
+type Palette = "sumi" | "sakura"
 
 interface ThemeProviderProps {
   children: React.ReactNode
-  defaultTheme?: Theme
-  storageKey?: string
+  defaultMode?: Mode
+  defaultPalette?: Palette
+  modeStorageKey?: string
+  paletteStorageKey?: string
 }
 
 interface ThemeProviderState {
-  theme: Theme
-  setTheme: (theme: Theme) => void
+  mode: Mode
+  palette: Palette
+  setMode: (mode: Mode) => void
+  setPalette: (palette: Palette) => void
 }
 
 const ThemeProviderContext = createContext<ThemeProviderState>({
-  theme: "system",
-  setTheme: () => null,
+  mode: "system",
+  palette: "sumi",
+  setMode: () => null,
+  setPalette: () => null,
 })
+
+function applyClasses(mode: Mode, palette: Palette) {
+  const root = document.documentElement
+  root.classList.remove("light", "dark", "sakura")
+
+  // Resolve system preference
+  const resolved =
+    mode === "system"
+      ? window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : mode
+
+  root.classList.add(resolved)
+  if (palette === "sakura") root.classList.add("sakura")
+}
 
 export function ThemeProvider({
   children,
-  defaultTheme = "system",
-  storageKey = "zaisei-ui-theme",
+  defaultMode = "system",
+  defaultPalette = "sumi",
+  modeStorageKey = "zaisei-ui-theme",
+  paletteStorageKey = "zaisei-ui-palette",
 }: ThemeProviderProps) {
-  const [theme, setTheme] = useState<Theme>(
-    () => (localStorage.getItem(storageKey) as Theme) || defaultTheme
+  const [mode, setModeState] = useState<Mode>(
+    () => (localStorage.getItem(modeStorageKey) as Mode) || defaultMode
+  )
+  const [palette, setPaletteState] = useState<Palette>(
+    () => (localStorage.getItem(paletteStorageKey) as Palette) || defaultPalette
   )
 
+  // Apply classes on every mode/palette change
   useEffect(() => {
-    const root = window.document.documentElement
-    root.classList.remove("light", "dark")
+    applyClasses(mode, palette)
+  }, [mode, palette])
 
-    if (theme === "system") {
-      const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
-        .matches
-        ? "dark"
-        : "light"
-      root.classList.add(systemTheme)
-      return
-    }
+  // Also listen for OS preference changes when mode is "system"
+  useEffect(() => {
+    if (mode !== "system") return
+    const mq = window.matchMedia("(prefers-color-scheme: dark)")
+    const handler = () => applyClasses(mode, palette)
+    mq.addEventListener("change", handler)
+    return () => mq.removeEventListener("change", handler)
+  }, [mode, palette])
 
-    root.classList.add(theme)
-  }, [theme])
-
-  const value = {
-    theme,
-    setTheme: (theme: Theme) => {
-      localStorage.setItem(storageKey, theme)
-      setTheme(theme)
+  const setMode = useCallback(
+    (newMode: Mode) => {
+      localStorage.setItem(modeStorageKey, newMode)
+      setModeState(newMode)
     },
-  }
+    [modeStorageKey]
+  )
+
+  const setPalette = useCallback(
+    (newPalette: Palette) => {
+      localStorage.setItem(paletteStorageKey, newPalette)
+      setPaletteState(newPalette)
+    },
+    [paletteStorageKey]
+  )
 
   return (
-    <ThemeProviderContext.Provider {...{ value }}>
+    <ThemeProviderContext.Provider value={{ mode, palette, setMode, setPalette }}>
       {children}
     </ThemeProviderContext.Provider>
   )

@@ -9,6 +9,7 @@ import {
 import { Card, CardContent } from "@/components/ui/card"
 import { formatCurrency } from "@/lib/utils"
 import { EXPENSE_CATEGORIES } from "@/lib/constants"
+import { useChartColors } from "@/hooks/useChartColors"
 import type { Transaction } from "@/types/transaction"
 
 ChartJS.register(ArcElement, Tooltip, Legend)
@@ -18,14 +19,9 @@ interface SpendingCategoryDonutProps {
   onCategoryClick?: (category: string) => void
 }
 
-const CATEGORY_COLORS = [
-  "#6B8F5E", "#8C9686", "#B96A4A", "#2B5F8A", "#D4A04A",
-  "#78716C", "#5B8C5A", "#C73E3E", "#4A8FC7", "#8FA84A",
-  "#BE4B3B",
-]
-
 export function SpendingCategoryDonut({ transactions, onCategoryClick }: SpendingCategoryDonutProps) {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null)
+  const colors = useChartColors()
 
   const { labels, data, total } = useMemo(() => {
     const byCategory: Record<string, number> = {}
@@ -73,7 +69,7 @@ export function SpendingCategoryDonut({ transactions, onCategoryClick }: Spendin
                 datasets: [
                   {
                     data,
-                    backgroundColor: CATEGORY_COLORS.slice(0, data.length),
+                    backgroundColor: colors.categoryPalette.slice(0, data.length),
                     borderColor: "transparent",
                     borderWidth: 0,
                     hoverOffset: 6,
@@ -145,7 +141,7 @@ export function SpendingCategoryDonut({ transactions, onCategoryClick }: Spendin
                   <span className="flex items-center gap-1.5 min-w-0">
                     <span
                       className="size-2 rounded-full shrink-0"
-                      style={{ backgroundColor: CATEGORY_COLORS[i] }}
+                      style={{ backgroundColor: colors.categoryPalette[i] }}
                     />
                     <span className="truncate">{label}</span>
                   </span>

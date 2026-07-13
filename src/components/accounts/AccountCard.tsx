@@ -51,6 +51,10 @@ export function AccountCard({
             onClick={() => setExpanded(!expanded)}
             className="flex items-center gap-3 cursor-pointer"
           >
+            {/* Brand-color exception: account.color is user-chosen and may be a
+                real-world brand color. Scoped to this icon badge only — all other
+                UI elements use theme accent tokens. See AccountForm.tsx for the
+                full exception rule. */}
             <div
               className="flex size-10 items-center justify-center rounded-full transition-transform duration-200 hover:scale-110"
               style={{ backgroundColor: account.color + "20" }}

@@ -10,7 +10,7 @@ import {
   Tooltip,
 } from "chart.js"
 import { useTransactions } from "@/hooks/useTransactions"
-import { useTheme } from "@/components/theme-provider"
+import { useChartColors } from "@/hooks/useChartColors"
 
 ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Filler, Tooltip)
 
@@ -28,11 +28,7 @@ function formatDayKey(d: Date): string {
 
 export function useCashflowData(hours: number, filterAccountId?: number) {
   const { transactions } = useTransactions()
-  const { theme } = useTheme()
-
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+  const colors = useChartColors()
 
   return useMemo(() => {
     const now = new Date()
@@ -84,8 +80,6 @@ export function useCashflowData(hours: number, filterAccountId?: number) {
 
     const labels = Object.keys(buckets)
     const values = labels.map((l) => buckets[l])
-    const lineColor = isDark ? "#7FA372" : "#6B8F5E"
-    const fillColor = isDark ? "rgba(127,163,114,0.1)" : "rgba(107,143,94,0.12)"
 
     return {
       netTotal,
@@ -94,13 +88,13 @@ export function useCashflowData(hours: number, filterAccountId?: number) {
         datasets: [
           {
             data: values,
-            borderColor: lineColor,
+            borderColor: colors.accent,
             backgroundColor: (ctx: any) => {
               const chart = ctx.chart
               const { ctx: c, chartArea } = chart
               if (!chartArea) return "transparent"
               const g = c.createLinearGradient(0, chartArea.top, 0, chartArea.bottom)
-              g.addColorStop(0, fillColor)
+              g.addColorStop(0, colors.accentFill)
               g.addColorStop(1, "transparent")
               return g
             },
@@ -113,7 +107,7 @@ export function useCashflowData(hours: number, filterAccountId?: number) {
         ],
       },
     }
-  }, [transactions, isDark, hours, filterAccountId])
+  }, [transactions, colors, hours, filterAccountId])
 }
 
 interface CashflowLineProps {
