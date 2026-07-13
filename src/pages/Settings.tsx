@@ -65,11 +65,11 @@ async function importData(file: File): Promise<{ success: boolean; message: stri
 
 function SwatchRow({ colors }: { colors: string[] }) {
   return (
-    <div className="flex gap-1.5 mt-2">
+    <div className="flex gap-1 md:gap-1.5 mt-2">
       {colors.map((c, i) => (
         <div
           key={i}
-          className="size-5 rounded-full border border-border/50"
+          className="size-4 md:size-5 rounded-full border border-border/50"
           style={{ backgroundColor: c }}
         />
       ))}
@@ -125,7 +125,7 @@ export default function SettingsPage() {
       <div className="mt-6 space-y-6">
         {/* Theme */}
         <Card>
-          <CardContent className="p-6 space-y-4">
+          <CardContent className="p-4 md:p-6 space-y-4">
             <div>
               <h3 className="font-medium">Theme</h3>
               <p className="text-sm text-muted-foreground mt-1">
@@ -137,7 +137,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => handlePaletteChange("sumi")}
                 className={cn(
-                  "relative flex flex-col items-start gap-1 p-3 rounded-xl border-2 transition-all duration-200",
+                  "relative flex flex-col items-start gap-1 p-2.5 md:p-3 rounded-xl border-2 transition-all duration-200",
                   palette === "sumi"
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/30"
@@ -154,7 +154,7 @@ export default function SettingsPage() {
               <button
                 onClick={() => handlePaletteChange("sakura")}
                 className={cn(
-                  "relative flex flex-col items-start gap-1 p-3 rounded-2xl border-2 transition-all duration-200",
+                  "relative flex flex-col items-start gap-1 p-2.5 md:p-3 rounded-2xl border-2 transition-all duration-200",
                   palette === "sakura"
                     ? "border-primary bg-primary/5"
                     : "border-border hover:border-muted-foreground/30"
