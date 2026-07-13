@@ -1,0 +1,264 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-display: "Zen Old Mincho", "Noto Serif JP", serif;
+
+  /* Sumi + Rikyu-nezumi token system — two-tier accent */
+  --color-sumi: #1C1917;
+  --color-kami: #F7F5F1;
+  --color-nezumi: #78716C;
+  --color-usuzumi: #D6D3D1;
+  --color-rikyu: #8C9686;
+  --color-accent-active: #6B8F5E;
+  --color-accent-resting: #8C9686;
+  --color-negative: #B96A4A;
+
+  /* shadcn semantic mapping — light */
+  --color-background: #F7F5F1;
+  --color-foreground: #1C1917;
+  --color-card: #FFFFFF;
+  --color-card-foreground: #1C1917;
+  --color-popover: #FFFFFF;
+  --color-popover-foreground: #1C1917;
+  --color-primary: #6B8F5E;
+  --color-primary-foreground: #FFFFFF;
+  --color-secondary: #F0EDE8;
+  --color-secondary-foreground: #1C1917;
+  --color-muted: #F0EDE8;
+  --color-muted-foreground: #78716C;
+  --color-accent: #8C9686;
+  --color-accent-foreground: #FFFFFF;
+  --color-destructive: #991B1B;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #E4E0DB;
+  --color-input: #E4E0DB;
+  --color-ring: #6B8F5E;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.375rem;
+  --radius-lg: 0.5rem;
+  --radius-xl: 0.75rem;
+}
+
+.dark {
+  --color-sumi: #FAFAF9;
+  --color-kami: #1C1917;
+  --color-nezumi: #A8A29E;
+  --color-usuzumi: #292524;
+  --color-rikyu: #8C9686;
+  --color-accent-active: #7FA372;
+  --color-accent-resting: #8C9686;
+  --color-negative: #B96A4A;
+
+  --color-background: #1C1917;
+  --color-foreground: #FAFAF9;
+  --color-card: #231F1E;
+  --color-card-foreground: #FAFAF9;
+  --color-popover: #231F1E;
+  --color-popover-foreground: #FAFAF9;
+  --color-primary: #7FA372;
+  --color-primary-foreground: #1C1917;
+  --color-secondary: #2A2624;
+  --color-secondary-foreground: #FAFAF9;
+  --color-muted: #2A2624;
+  --color-muted-foreground: #A8A29E;
+  --color-accent: #8C9686;
+  --color-accent-foreground: #1C1917;
+  --color-destructive: #7F1D1D;
+  --color-destructive-foreground: #FFFFFF;
+  --color-border: #352F2C;
+  --color-input: #352F2C;
+  --color-ring: #7FA372;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* ============================================
+   Page transition: fade in + drift up
+   ============================================ */
+@keyframes page-in {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-page-in {
+  animation: page-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ============================================
+   Staggered card entrance
+   ============================================ */
+@keyframes card-stagger-in {
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.stagger-1 { animation-delay: 60ms; }
+.stagger-2 { animation-delay: 120ms; }
+.stagger-3 { animation-delay: 180ms; }
+.stagger-4 { animation-delay: 240ms; }
+.stagger-5 { animation-delay: 300ms; }
+
+.animate-card-in {
+  animation: card-stagger-in 400ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* ============================================
+   Signature underline motif — grows from center
+   ============================================ */
+@keyframes underline-grow {
+  from { width: 0; }
+  to { width: 2.5rem; }
+}
+
+.accent-underline {
+  position: relative;
+  display: inline-block;
+}
+.accent-underline::after {
+  content: "";
+  display: block;
+  height: 2px;
+  background: var(--color-accent-active);
+  border-radius: 1px;
+  animation: underline-grow 500ms cubic-bezier(0.16, 1, 0.3, 1) 200ms both;
+  margin-top: 0.5rem;
+}
+
+/* ============================================
+   Sheet / Drawer animations
+   ============================================ */
+.sheet-overlay-in {
+  animation: sheet-fade-in 300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+.sheet-overlay-out {
+  animation: sheet-fade-out 200ms ease-in both;
+}
+
+@keyframes sheet-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+@keyframes sheet-fade-out {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+.sheet-slide-in-right { animation: sheet-slide-right 300ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.sheet-slide-out-right { animation: sheet-slide-right 200ms ease-in reverse both; }
+.sheet-slide-in-left { animation: sheet-slide-left 300ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.sheet-slide-out-left { animation: sheet-slide-left 200ms ease-in reverse both; }
+.sheet-slide-in-bottom { animation: sheet-slide-bottom 300ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.sheet-slide-out-bottom { animation: sheet-slide-bottom 200ms ease-in reverse both; }
+.sheet-slide-in-top { animation: sheet-slide-top 300ms cubic-bezier(0.16, 1, 0.3, 1) both; }
+.sheet-slide-out-top { animation: sheet-slide-top 200ms ease-in reverse both; }
+
+@keyframes sheet-slide-right {
+  from { transform: translateX(100%); }
+  to { transform: translateX(0); }
+}
+@keyframes sheet-slide-left {
+  from { transform: translateX(-100%); }
+  to { transform: translateX(0); }
+}
+@keyframes sheet-slide-bottom {
+  from { transform: translateY(100%); }
+  to { transform: translateY(0); }
+}
+@keyframes sheet-slide-top {
+  from { transform: translateY(-100%); }
+  to { transform: translateY(0); }
+}
+
+/* ============================================
+   Theme transition: smooth color shifts
+   ============================================ */
+.theme-transition,
+.theme-transition *,
+.theme-transition *::before,
+.theme-transition *::after {
+  transition:
+    background-color 300ms ease,
+    color 300ms ease,
+    border-color 300ms ease,
+    box-shadow 300ms ease,
+    fill 300ms ease,
+    stroke 300ms ease !important;
+}
+
+/* ============================================
+   Touch feedback
+   ============================================ */
+button:active,
+[role="button"]:active {
+  transform: scale(0.97);
+  transition: transform 60ms ease, background-color 60ms ease, color 60ms ease;
+}
+
+[data-slot="button"][data-variant="default"]:active {
+  background-color: color-mix(in srgb, var(--color-primary) 80%, black);
+}
+[data-slot="button"][data-variant="outline"]:active {
+  background-color: var(--color-muted);
+}
+[data-slot="button"][data-variant="secondary"]:active {
+  background-color: color-mix(in srgb, var(--color-secondary) 80%, black);
+}
+[data-slot="button"][data-variant="ghost"]:active {
+  background-color: var(--color-accent);
+  color: var(--color-accent-foreground);
+}
+
+nav a:active {
+  background-color: var(--color-accent);
+  color: var(--color-accent-foreground);
+  border-radius: var(--radius-md);
+  transition: background-color 60ms ease, color 60ms ease;
+}
+
+button[data-slot="button"][data-size="icon"]:active,
+button[data-slot="button"][data-size="icon-sm"]:active {
+  background-color: var(--color-accent);
+  color: var(--color-accent-foreground);
+}
+
+@media (pointer: coarse) {
+  button,
+  [role="button"],
+  nav a {
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
+  }
+}
+
+/* ============================================
+   Reduced motion
+   ============================================ */
+@media (prefers-reduced-motion: reduce) {
+  .animate-page-in,
+  .animate-card-in,
+  .sheet-overlay-in,
+  .sheet-overlay-out,
+  .sheet-slide-in-right,
+  .sheet-slide-out-right,
+  .sheet-slide-in-left,
+  .sheet-slide-out-left,
+  .sheet-slide-in-bottom,
+  .sheet-slide-out-bottom,
+  .sheet-slide-in-top,
+  .sheet-slide-out-top,
+  .accent-underline::after {
+    animation: none !important;
+  }
+}
