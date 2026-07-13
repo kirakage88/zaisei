@@ -9,7 +9,7 @@ export function CashflowChart() {
 
   return (
     <Card>
-      <CardContent className="p-5">
+      <CardContent className="p-5 flex flex-col h-full">
         <div className="flex items-center justify-between mb-4">
           <span className="text-xs text-muted-foreground">Cashflow</span>
           <div className="flex items-center gap-3">
@@ -19,7 +19,11 @@ export function CashflowChart() {
             <TimeRangeSelector value={range} onChange={setRange} />
           </div>
         </div>
-        <CashflowLine hours={TIME_RANGE_HOURS[range]} />
+        <div className="flex-1 flex items-center">
+          <div className="w-full">
+            <CashflowLine height={80} hours={TIME_RANGE_HOURS[range]} />
+          </div>
+        </div>
       </CardContent>
     </Card>
   )

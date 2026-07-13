@@ -83,6 +83,7 @@ export function useCashflowData(hours: number, filterAccountId?: number) {
     })
 
     const labels = Object.keys(buckets)
+    const values = labels.map((l) => buckets[l])
     const lineColor = isDark ? "#7FA372" : "#6B8F5E"
     const fillColor = isDark ? "rgba(127,163,114,0.1)" : "rgba(107,143,94,0.12)"
 
@@ -92,7 +93,7 @@ export function useCashflowData(hours: number, filterAccountId?: number) {
         labels,
         datasets: [
           {
-            data: labels.map((l) => buckets[l]),
+            data: values,
             borderColor: lineColor,
             backgroundColor: (ctx: any) => {
               const chart = ctx.chart
@@ -151,7 +152,16 @@ export function CashflowLine({ height = 120, filterAccountId, hours }: CashflowL
           },
           scales: {
             x: { display: false },
-            y: { display: false },
+            y: {
+              display: false,
+              afterDataLimits(scale) {
+                const dataMin = scale.min
+                const dataMax = scale.max
+                const absMax = Math.max(Math.abs(dataMin), Math.abs(dataMax), 1)
+                scale.min = -absMax * 1.2
+                scale.max = absMax * 1.2
+              },
+            },
           },
         }}
       />

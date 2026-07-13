@@ -109,7 +109,7 @@ export function TransactionFilters({
         className="h-9 rounded-md border border-input bg-background px-3 text-xs tabular-nums"
       />
 
-      <Button variant="outline" size="sm" onClick={cycleSort} className="gap-1">
+      <Button variant="secondary" size="sm" onClick={cycleSort} className="gap-1.5 h-9 px-3 text-xs font-medium">
         {SORT_LABELS[filters.sortMode]}
       </Button>
     </div>

@@ -21,6 +21,26 @@ async function exportData() {
   URL.revokeObjectURL(url)
 }
 
+const DATE_FIELDS: Record<string, string[]> = {
+  transactions: ["date", "createdAt"],
+  accounts: ["createdAt"],
+  debts: ["createdAt"],
+  kakeiboMonths: ["createdAt", "closedAt"],
+  kakeiboCheckins: ["date"],
+}
+
+function reviveDates(table: string, rows: Record<string, unknown>[]) {
+  const fields = DATE_FIELDS[table]
+  if (!fields) return rows
+  return rows.map((row) => {
+    const copy = { ...row }
+    for (const f of fields) {
+      if (typeof copy[f] === "string") copy[f] = new Date(copy[f] as string)
+    }
+    return copy
+  })
+}
+
 async function importData(file: File): Promise<{ success: boolean; message: string }> {
   try {
     const text = await file.text()
@@ -28,8 +48,9 @@ async function importData(file: File): Promise<{ success: boolean; message: stri
 
     for (const table of TABLES) {
       if (Array.isArray(data[table])) {
+        const rows = reviveDates(table, data[table])
         await db.table(table).clear()
-        await db.table(table).bulkAdd(data[table])
+        await db.table(table).bulkAdd(rows)
       }
     }
     return { success: true, message: `Imported ${TABLES.length} tables successfully.` }
@@ -141,7 +162,7 @@ export default function SettingsPage() {
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex justify-between">
                 <span>Version</span>
-                <span className="tabular-nums">v0.4.0</span>
+                <span className="tabular-nums">v0.4.2</span>
               </div>
               <div className="flex justify-between">
                 <span>Storage</span>

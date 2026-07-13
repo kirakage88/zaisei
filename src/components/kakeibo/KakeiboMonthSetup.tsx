@@ -91,7 +91,7 @@ export function KakeiboMonthSetup({ year, month }: KakeiboMonthSetupProps) {
           </div>
           {autoIncome > 0 && !income && (
             <Button
-              variant="ghost"
+              variant="outline"
               size="sm"
               onClick={useAuto}
               className="text-xs text-muted-foreground h-6"
