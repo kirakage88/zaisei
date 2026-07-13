@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/lib/db"
 import { Card, CardContent } from "@/components/ui/card"
@@ -67,10 +67,22 @@ export function KakeiboEnvelopes({ month, onCloseMonth, isClosing }: KakeiboEnve
   const [incomeDraft, setIncomeDraft] = useState("")
   const [isSavingIncome, setIsSavingIncome] = useState(false)
 
-  const displayIncome = month.income > 0 ? month.income : autoIncome
+  const displayIncome = autoIncome > 0 ? autoIncome : month.income
+
+  useEffect(() => {
+    if (autoIncome > 0 && month.id && autoIncome !== month.income) {
+      const allocs = autoCalcAllocations(autoIncome)
+      updateMonth(month.id, {
+        income: autoIncome,
+        needsAllocated: allocs.needsAllocated,
+        wantsAllocated: allocs.wantsAllocated,
+        savingsAllocated: allocs.savingsAllocated,
+      })
+    }
+  }, [autoIncome, month.id, month.income])
 
   const startEditIncome = () => {
-    setIncomeDraft(String(displayIncome / 100 || ""))
+    setIncomeDraft(String(displayIncome || ""))
     setIsEditingIncome(true)
   }
 
@@ -83,12 +95,15 @@ export function KakeiboEnvelopes({ month, onCloseMonth, isClosing }: KakeiboEnve
     setIsSavingIncome(true)
     try {
       const allocs = autoCalcAllocations(newIncome)
-      await updateMonth(month.id, {
-        income: newIncome,
+      const changes: Partial<KakeiboMonth> = {
         needsAllocated: allocs.needsAllocated,
         wantsAllocated: allocs.wantsAllocated,
         savingsAllocated: allocs.savingsAllocated,
-      })
+      }
+      if (autoIncome === 0) {
+        changes.income = newIncome
+      }
+      await updateMonth(month.id, changes)
       setIsEditingIncome(false)
     } finally {
       setIsSavingIncome(false)
@@ -152,7 +167,7 @@ export function KakeiboEnvelopes({ month, onCloseMonth, isClosing }: KakeiboEnve
                   className="text-xs text-muted-foreground hover:text-foreground transition-colors"
                 >
                   Income: {formatCurrency(displayIncome)}
-                  {month.income === 0 && autoIncome > 0 && (
+                  {autoIncome > 0 && (
                     <span className="ml-1 text-[10px]">(auto)</span>
                   )}
                   <span className="ml-1 underline decoration-dotted">edit</span>
@@ -170,6 +185,9 @@ export function KakeiboEnvelopes({ month, onCloseMonth, isClosing }: KakeiboEnve
             const pct = env.allocated > 0 ? Math.min((env.spent / env.allocated) * 100, 100) : 0
             const remaining = env.allocated - env.spent
             const isOver = remaining < 0
+            const overPct = isOver && env.allocated > 0
+              ? Math.min(((env.spent - env.allocated) / env.allocated) * 100, 50)
+              : 0
             return (
               <div key={env.label}>
                 <div className="flex items-center justify-between mb-1.5">
@@ -178,12 +196,26 @@ export function KakeiboEnvelopes({ month, onCloseMonth, isClosing }: KakeiboEnve
                     {formatCurrency(env.spent)} / {formatCurrency(env.allocated)}
                   </span>
                 </div>
-                <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${isOver ? "bg-negative" : env.color} transition-all duration-500`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
+                {isOver ? (
+                  <div className="relative h-2.5 rounded-full bg-muted overflow-hidden">
+                    <div className="absolute inset-0 stripe-pattern rounded-full" />
+                    <div
+                      className="absolute right-0 top-0 bottom-0 bg-negative rounded-r-full flex items-center justify-center"
+                      style={{ width: `${overPct}%` }}
+                    >
+                      {overPct > 12 && (
+                        <span className="text-[7px] font-bold text-white tracking-wider">OVER</span>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-2.5 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${env.color} transition-all duration-500`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                )}
                 <p className="text-[11px] text-muted-foreground mt-1 tabular-nums">
                   {isOver
                     ? `Over by ${formatCurrency(Math.abs(remaining))}`

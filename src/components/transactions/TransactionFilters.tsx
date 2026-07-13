@@ -8,17 +8,26 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Button } from "@/components/ui/button"
-import { ArrowUp, ArrowDown } from "lucide-react"
 import { useAccounts } from "@/hooks/useAccounts"
 import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/constants"
+import type { SortMode } from "@/pages/Transactions"
+
+const SORT_LABELS: Record<SortMode, string> = {
+  "date-desc": "Date ↓",
+  "date-asc": "Date ↑",
+  "amount-desc": "Amount ↓",
+  "amount-asc": "Amount ↑",
+}
+
+const SORT_CYCLE: SortMode[] = ["date-desc", "date-asc", "amount-desc", "amount-asc"]
 
 interface TransactionFiltersProps {
   filters: {
     search: string
     accountFilter: string
     categoryFilter: string
-    sortBy: "date" | "amount"
-    sortOrder: "asc" | "desc"
+    sortMode: SortMode
+    filterDate: string
   }
   onFilterChange: (filters: TransactionFiltersProps["filters"]) => void
 }
@@ -35,19 +44,10 @@ export function TransactionFilters({
     ...INCOME_CATEGORIES,
   ]
 
-  const toggleSort = () => {
-    if (filters.sortBy === "date") {
-      onFilterChange({
-        ...filters,
-        sortBy: "amount",
-        sortOrder: "desc",
-      })
-    } else {
-      onFilterChange({
-        ...filters,
-        sortOrder: filters.sortOrder === "asc" ? "desc" : "asc",
-      })
-    }
+  const cycleSort = () => {
+    const idx = SORT_CYCLE.indexOf(filters.sortMode)
+    const next = SORT_CYCLE[(idx + 1) % SORT_CYCLE.length]
+    onFilterChange({ ...filters, sortMode: next })
   }
 
   return (
@@ -102,13 +102,15 @@ export function TransactionFilters({
         </SelectContent>
       </Select>
 
-      <Button variant="outline" size="sm" onClick={toggleSort}>
-        {filters.sortBy === "date" ? "Date" : "Amount"}
-        {filters.sortOrder === "asc" ? (
-          <ArrowUp className="size-3 ml-1" />
-        ) : (
-          <ArrowDown className="size-3 ml-1" />
-        )}
+      <input
+        type="date"
+        value={filters.filterDate}
+        onChange={(e) => onFilterChange({ ...filters, filterDate: e.target.value })}
+        className="h-9 rounded-md border border-input bg-background px-3 text-xs tabular-nums"
+      />
+
+      <Button variant="outline" size="sm" onClick={cycleSort} className="gap-1">
+        {SORT_LABELS[filters.sortMode]}
       </Button>
     </div>
   )

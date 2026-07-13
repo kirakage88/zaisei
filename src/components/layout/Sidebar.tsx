@@ -79,8 +79,7 @@ export function Sidebar() {
         {secondaryLinks.map((link) => (
           <SidebarLink key={link.to} {...link} />
         ))}
-        <div className="mt-2 flex items-center justify-between">
-          <span className="text-[10px] text-muted-foreground">v0.2.2</span>
+        <div className="mt-2 flex items-center justify-end">
           <ThemeToggle />
         </div>
       </div>

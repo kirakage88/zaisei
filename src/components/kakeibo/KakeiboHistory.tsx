@@ -1,6 +1,9 @@
 import { useState } from "react"
+import { Trash2 } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { formatCurrency, formatMonthYear } from "@/lib/utils"
+import { useKakeibo } from "@/hooks/useKakeibo"
 import type { KakeiboMonth } from "@/types/kakeibo"
 
 interface KakeiboHistoryProps {
@@ -8,6 +11,7 @@ interface KakeiboHistoryProps {
 }
 
 export function KakeiboHistory({ months }: KakeiboHistoryProps) {
+  const { deleteMonth } = useKakeibo()
   const [expanded, setExpanded] = useState<number | null>(null)
   const closed = months
     .filter((m) => m.isClosed)
@@ -76,6 +80,17 @@ export function KakeiboHistory({ months }: KakeiboHistoryProps) {
                       Saved {formatCurrency(m.savingsAllocated - m.savingsSpent)}
                     </p>
                   )}
+                  <div className="pt-1">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="h-7 text-destructive text-xs"
+                      onClick={() => m.id && deleteMonth(m.id)}
+                    >
+                      <Trash2 className="size-3 mr-1" />
+                      Delete
+                    </Button>
+                  </div>
                 </div>
               )}
             </CardContent>

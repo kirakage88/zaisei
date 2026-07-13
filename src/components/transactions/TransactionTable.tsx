@@ -23,6 +23,7 @@ import { EXPENSE_CATEGORIES, INCOME_CATEGORIES } from "@/lib/constants"
 import { useTransactions } from "@/hooks/useTransactions"
 import { useAccounts } from "@/hooks/useAccounts"
 import type { Transaction } from "@/types/transaction"
+import type { SortMode } from "@/pages/Transactions"
 
 interface TransactionTableProps {
   onEdit: (transaction: Transaction) => void
@@ -30,8 +31,8 @@ interface TransactionTableProps {
     search: string
     accountFilter: string
     categoryFilter: string
-    sortBy: "date" | "amount"
-    sortOrder: "asc" | "desc"
+    sortMode: SortMode
+    filterDate: string
   }
 }
 
@@ -56,14 +57,24 @@ export function TransactionTable({ onEdit, filters }: TransactionTableProps) {
         return false
       if (filters.categoryFilter && filters.categoryFilter !== "all" && tx.category !== filters.categoryFilter)
         return false
+      if (filters.filterDate) {
+        const txDate = new Date(tx.date)
+        const filter = new Date(filters.filterDate)
+        if (
+          txDate.getFullYear() !== filter.getFullYear() ||
+          txDate.getMonth() !== filter.getMonth() ||
+          txDate.getDate() !== filter.getDate()
+        )
+          return false
+      }
       return true
     })
     .sort((a, b) => {
-      const dir = filters.sortOrder === "asc" ? 1 : -1
-      if (filters.sortBy === "date") {
-        return (new Date(a.date).getTime() - new Date(b.date).getTime()) * dir
-      }
-      return (a.amount - b.amount) * dir
+      const { sortMode } = filters
+      if (sortMode === "date-desc") return new Date(b.date).getTime() - new Date(a.date).getTime()
+      if (sortMode === "date-asc") return new Date(a.date).getTime() - new Date(b.date).getTime()
+      if (sortMode === "amount-desc") return b.amount - a.amount
+      return a.amount - b.amount
     })
 
   const typeColor = (type: Transaction["type"]) => {

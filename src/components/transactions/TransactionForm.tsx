@@ -249,35 +249,61 @@ export function TransactionForm({
             <FormField
               control={form.control}
               name="date"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            "w-full justify-start text-left font-normal",
-                            !field.value && "text-muted-foreground"
-                          )}
-                        >
-                          <CalendarIcon className="mr-2 size-4" />
-                          {field.value ? format(field.value, "PPP") : "Pick a date"}
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
+              render={({ field }) => {
+                const dateVal = field.value instanceof Date ? field.value : new Date()
+                const timeStr = `${String(dateVal.getHours()).padStart(2, "0")}:${String(dateVal.getMinutes()).padStart(2, "0")}`
+                return (
+                  <FormItem>
+                    <FormLabel>Date & Time</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              "w-full justify-start text-left font-normal",
+                              !field.value && "text-muted-foreground"
+                            )}
+                          >
+                            <CalendarIcon className="mr-2 size-4" />
+                            {field.value
+                              ? format(dateVal, "PPP p")
+                              : "Pick a date & time"}
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-3">
+                        <Calendar
+                          mode="single"
+                          selected={dateVal}
+                          onSelect={(day) => {
+                            if (day) {
+                              const prev = dateVal
+                              day.setHours(prev.getHours(), prev.getMinutes(), prev.getSeconds())
+                              field.onChange(day)
+                            }
+                          }}
+                        />
+                        <div className="flex items-center gap-2 mt-2 pt-2 border-t">
+                          <span className="text-xs text-muted-foreground">Time</span>
+                          <Input
+                            type="time"
+                            value={timeStr}
+                            onChange={(e) => {
+                              const [h, m] = e.target.value.split(":").map(Number)
+                              const d = new Date(dateVal)
+                              d.setHours(h, m, 0, 0)
+                              field.onChange(d)
+                            }}
+                            className="h-8 w-auto text-xs"
+                          />
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )
+              }}
             />
 
             {txType === "transfer" ? (

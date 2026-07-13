@@ -21,6 +21,7 @@ interface KakeiboContextValue {
   ) => Promise<number>
   updateMonth: (id: number, changes: Partial<KakeiboMonth>) => Promise<void>
   closeMonth: (id: number) => Promise<void>
+  deleteMonth: (id: number) => Promise<void>
   addCheckin: (
     checkin: Omit<KakeiboCheckIn, "id">
   ) => Promise<number>
@@ -59,6 +60,11 @@ export function KakeiboProvider({ children }: { children: React.ReactNode }) {
     })
   }
 
+  const deleteMonth = async (id: number) => {
+    await db.kakeiboCheckins.where("kakeiboMonthId").equals(id).delete()
+    await db.kakeiboMonths.delete(id)
+  }
+
   const addCheckin = async (
     checkin: Omit<KakeiboCheckIn, "id">
   ) => {
@@ -93,6 +99,7 @@ export function KakeiboProvider({ children }: { children: React.ReactNode }) {
         createMonth,
         updateMonth,
         closeMonth,
+        deleteMonth,
         addCheckin,
         updateSpent,
       }}

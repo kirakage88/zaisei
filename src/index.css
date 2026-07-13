@@ -262,3 +262,17 @@ button[data-slot="button"][data-size="icon-sm"]:active {
     animation: none !important;
   }
 }
+
+/* ============================================
+   Over-budget stripe pattern
+   ============================================ */
+.stripe-pattern {
+  background: repeating-linear-gradient(
+    -45deg,
+    var(--color-nezumi) 0px,
+    var(--color-nezumi) 3px,
+    var(--color-sumi) 3px,
+    var(--color-sumi) 6px
+  );
+  opacity: 0.6;
+}

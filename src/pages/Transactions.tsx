@@ -6,12 +6,14 @@ import { TransactionFilters } from "@/components/transactions/TransactionFilters
 import { TransactionForm } from "@/components/transactions/TransactionForm"
 import type { Transaction } from "@/types/transaction"
 
+export type SortMode = "date-desc" | "date-asc" | "amount-desc" | "amount-asc"
+
 interface FilterState {
   search: string
   accountFilter: string
   categoryFilter: string
-  sortBy: "date" | "amount"
-  sortOrder: "asc" | "desc"
+  sortMode: SortMode
+  filterDate: string
 }
 
 export default function TransactionsPage() {
@@ -21,8 +23,8 @@ export default function TransactionsPage() {
     search: "",
     accountFilter: "",
     categoryFilter: "",
-    sortBy: "date",
-    sortOrder: "desc",
+    sortMode: "date-desc",
+    filterDate: "",
   })
 
   const handleEdit = (tx: Transaction) => {

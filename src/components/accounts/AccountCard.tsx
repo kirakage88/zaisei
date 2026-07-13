@@ -1,4 +1,5 @@
-import { Wallet, CreditCard, Banknote, Building2, PiggyBank, Landmark, CircleDollarSign, Coins } from "lucide-react"
+import { useState } from "react"
+import { Wallet, CreditCard, Banknote, Building2, PiggyBank, Landmark, CircleDollarSign, Coins, ChevronDown } from "lucide-react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -10,6 +11,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { formatCurrency } from "@/lib/utils"
+import { CashflowLine, TimeRangeSelector, useCashflowData, TIME_RANGE_HOURS, type TimeRange } from "@/components/cashflow/CashflowLine"
 import type { Account } from "@/types/account"
 
 const iconMap: Record<string, React.ComponentType<{ className?: string; style?: React.CSSProperties }>> = {
@@ -36,13 +38,19 @@ export function AccountCard({
   onArchive,
   onDelete,
 }: AccountCardProps) {
+  const [expanded, setExpanded] = useState(false)
+  const [range, setRange] = useState<TimeRange>("30d")
+  const { netTotal } = useCashflowData(TIME_RANGE_HOURS[range], account.id!)
   const Icon = iconMap[account.icon] || Wallet
 
   return (
-    <Card className="relative overflow-hidden cursor-pointer">
+    <Card className="relative overflow-hidden">
       <CardContent className="p-5">
         <div className="flex items-start justify-between">
-          <div className="flex items-center gap-3">
+          <button
+            onClick={() => setExpanded(!expanded)}
+            className="flex items-center gap-3 cursor-pointer"
+          >
             <div
               className="flex size-10 items-center justify-center rounded-full transition-transform duration-200 hover:scale-110"
               style={{ backgroundColor: account.color + "20" }}
@@ -58,7 +66,8 @@ export function AccountCard({
                 {account.type.charAt(0).toUpperCase() + account.type.slice(1)}
               </Badge>
             </div>
-          </div>
+            <ChevronDown className={`size-3.5 text-muted-foreground transition-transform duration-200 ${expanded ? "rotate-180" : ""}`} />
+          </button>
 
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -89,6 +98,18 @@ export function AccountCard({
         <div className="mt-4">
           <p className="text-2xl font-display font-black tabular-nums">{formatCurrency(account.balance)}</p>
         </div>
+
+        {expanded && (
+          <div className="mt-4 space-y-2">
+            <div className="flex items-center justify-between">
+              <span className="text-[10px] text-muted-foreground tabular-nums">
+                Net: {formatCurrency(netTotal)}
+              </span>
+              <TimeRangeSelector value={range} onChange={setRange} />
+            </div>
+            <CashflowLine height={80} filterAccountId={account.id!} hours={TIME_RANGE_HOURS[range]} />
+          </div>
+        )}
       </CardContent>
     </Card>
   )
