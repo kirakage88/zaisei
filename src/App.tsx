@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom"
+import { HashRouter, Routes, Route } from "react-router-dom"
 import { AccountsProvider } from "@/hooks/useAccounts"
 import { TransactionsProvider } from "@/hooks/useTransactions"
 import { DebtsProvider } from "@/hooks/useDebts"
@@ -14,7 +14,7 @@ import SettingsPage from "@/pages/Settings"
 
 function App() {
   return (
-    <BrowserRouter>
+    <HashRouter>
       <AccountsProvider>
         <TransactionsProvider>
           <DebtsProvider>
@@ -34,7 +34,7 @@ function App() {
           </DebtsProvider>
         </TransactionsProvider>
       </AccountsProvider>
-    </BrowserRouter>
+    </HashRouter>
   )
 }
 
