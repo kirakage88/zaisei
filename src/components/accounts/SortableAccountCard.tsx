@@ -36,7 +36,7 @@ export function SortableAccountCard({
   }
 
   return (
-    <div ref={setNodeRef} style={style} className="touch-none">
+    <div ref={setNodeRef} style={style}>
       <AccountCard
         account={account}
         onEdit={onEdit}
