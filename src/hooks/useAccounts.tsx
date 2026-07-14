@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react"
+import { createContext, useContext, useMemo } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/lib/db"
 import type { Account } from "@/types/account"
@@ -6,25 +6,34 @@ import type { Account } from "@/types/account"
 interface AccountsContextValue {
   accounts: Account[]
   loading: boolean
-  addAccount: (account: Omit<Account, "id" | "createdAt" | "updatedAt">) => Promise<number>
+  addAccount: (account: Omit<Account, "id" | "createdAt" | "updatedAt" | "order" | "kakeiboIncluded" | "netWorthIncluded">) => Promise<number>
   updateAccount: (id: number, changes: Partial<Account>) => Promise<void>
   archiveAccount: (id: number) => Promise<void>
   unarchiveAccount: (id: number) => Promise<void>
   deleteAccount: (id: number) => Promise<void>
+  reorderAccounts: (orderedIds: number[]) => Promise<void>
 }
 
 const AccountsContext = createContext<AccountsContextValue | null>(null)
 
 export function AccountsProvider({ children }: { children: React.ReactNode }) {
-  const accounts = useLiveQuery(() => db.accounts.toArray(), []) ?? []
-  const loading = accounts.length === 0
+  const rawAccounts = useLiveQuery(() => db.accounts.toArray(), []) ?? []
+  const accounts = useMemo(
+    () => [...rawAccounts].sort((a, b) => (a.order ?? 0) - (b.order ?? 0)),
+    [rawAccounts]
+  )
+  const loading = rawAccounts.length === 0
 
   const addAccount = async (
-    account: Omit<Account, "id" | "createdAt" | "updatedAt">
+    account: Omit<Account, "id" | "createdAt" | "updatedAt" | "order" | "kakeiboIncluded" | "netWorthIncluded">
   ) => {
     const now = new Date()
+    const maxOrder = accounts.reduce((max, a) => Math.max(max, a.order ?? -1), -1)
     return db.accounts.add({
       ...account,
+      order: maxOrder + 1,
+      kakeiboIncluded: true,
+      netWorthIncluded: true,
       createdAt: now,
       updatedAt: now,
     })
@@ -55,6 +64,14 @@ export function AccountsProvider({ children }: { children: React.ReactNode }) {
     await db.accounts.delete(id)
   }
 
+  const reorderAccounts = async (orderedIds: number[]) => {
+    await db.transaction("rw", db.accounts, async () => {
+      for (let i = 0; i < orderedIds.length; i++) {
+        await db.accounts.update(orderedIds[i], { order: i, updatedAt: new Date() })
+      }
+    })
+  }
+
   return (
     <AccountsContext.Provider
       value={{
@@ -65,6 +82,7 @@ export function AccountsProvider({ children }: { children: React.ReactNode }) {
         archiveAccount,
         unarchiveAccount,
         deleteAccount,
+        reorderAccounts,
       }}
     >
       {children}

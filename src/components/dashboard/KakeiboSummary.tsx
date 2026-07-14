@@ -85,6 +85,9 @@ export function KakeiboSummary() {
             const pct = env.allocated > 0 ? Math.min((env.spent / env.allocated) * 100, 100) : 0
             const remaining = env.allocated - env.spent
             const isOver = remaining < 0
+            const overPct = isOver && env.allocated > 0
+              ? Math.min(((env.spent - env.allocated) / env.allocated) * 100, 50)
+              : 0
             return (
               <div key={env.label}>
                 <div className="flex items-center justify-between mb-1">
@@ -93,12 +96,29 @@ export function KakeiboSummary() {
                     {formatCurrency(env.spent)} / {formatCurrency(env.allocated)}
                   </span>
                 </div>
-                <div className="h-2 rounded-full bg-muted overflow-hidden">
-                  <div
-                    className={`h-full rounded-full ${isOver ? "bg-negative" : env.color} transition-all duration-500`}
-                    style={{ width: `${pct}%` }}
-                  />
-                </div>
+                {isOver ? (
+                  <div className="relative h-2 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={`absolute inset-y-0 left-0 rounded-full ${env.color}`}
+                      style={{ width: "100%" }}
+                    />
+                    <div
+                      className="absolute inset-y-0 left-0 bg-negative rounded-r-full flex items-center justify-center"
+                      style={{ width: `${overPct}%` }}
+                    >
+                      {overPct > 12 && (
+                        <span className="text-[6px] font-bold text-white tracking-wider">OVER</span>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="h-2 rounded-full bg-muted overflow-hidden">
+                    <div
+                      className={`h-full rounded-full ${env.color} transition-all duration-500`}
+                      style={{ width: `${pct}%` }}
+                    />
+                  </div>
+                )}
                 <p className="text-[10px] text-muted-foreground mt-0.5 tabular-nums">
                   {isOver ? `Over by ${formatCurrency(Math.abs(remaining))}` : `${formatCurrency(remaining)} left`}
                 </p>

@@ -1,14 +1,16 @@
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/lib/db"
 import { useKakeibo, autoCalcAllocations } from "@/hooks/useKakeibo"
+import { useAccounts } from "@/hooks/useAccounts"
 import { KakeiboMonthSetup } from "@/components/kakeibo/KakeiboMonthSetup"
 import { KakeiboEnvelopes } from "@/components/kakeibo/KakeiboEnvelopes"
 import { WeeklyCheckIn } from "@/components/kakeibo/WeeklyCheckIn"
 import { KakeiboHistory } from "@/components/kakeibo/KakeiboHistory"
+import { KakeiboAccountSettings } from "@/components/kakeibo/KakeiboAccountSettings"
 import { PageTitle } from "@/components/layout/PageTitle"
 
-function useAutoSpent(month: { year: number; month: number }) {
+function useAutoSpent(month: { year: number; month: number }, includedIds: Set<number>) {
   const startOfMonth = new Date(month.year, month.month - 1, 1)
   const endOfMonth = new Date(month.year, month.month, 0, 23, 59, 59, 999)
 
@@ -24,18 +26,25 @@ function useAutoSpent(month: { year: number; month: number }) {
 
     for (const tx of txs) {
       if (tx.type !== "expense") continue
+      if (!includedIds.has(tx.accountId)) continue
       if (tx.kakeiboTag === "needs") needs += tx.amount
       else if (tx.kakeiboTag === "wants") wants += tx.amount
       else if (tx.kakeiboTag === "savings") savings += tx.amount
     }
 
     return { needs, wants, savings }
-  }, [month.year, month.month]) ?? { needs: 0, wants: 0, savings: 0 }
+  }, [month.year, month.month, includedIds]) ?? { needs: 0, wants: 0, savings: 0 }
 }
 
 export default function KakeiboPage() {
   const { months, checkins, closeMonth, createMonth, updateMonth } = useKakeibo()
+  const { accounts } = useAccounts()
   const [isClosing, setIsClosing] = useState(false)
+
+  const includedIds = useMemo(
+    () => new Set(accounts.filter((a) => !a.isArchived && a.kakeiboIncluded !== false).map((a) => a.id!)),
+    [accounts]
+  )
 
   const now = new Date()
   const currentYear = now.getFullYear()
@@ -48,7 +57,8 @@ export default function KakeiboPage() {
   const spent = useAutoSpent(
     activeMonth
       ? { year: activeMonth.year, month: activeMonth.month }
-      : { year: currentYear, month: currentMonthNum }
+      : { year: currentYear, month: currentMonthNum },
+    includedIds
   )
 
   const handleCloseMonth = async () => {
@@ -93,6 +103,8 @@ export default function KakeiboPage() {
       <PageTitle>Kakeibo</PageTitle>
 
       <div className="mt-6 space-y-6">
+        <KakeiboAccountSettings />
+
         {!activeMonth ? (
           <KakeiboMonthSetup year={currentYear} month={currentMonthNum} />
         ) : (

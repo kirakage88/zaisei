@@ -1,4 +1,5 @@
 import { useState } from "react"
+import { format } from "date-fns"
 import { Plus } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { TransactionTable } from "@/components/transactions/TransactionTable"
@@ -25,7 +26,7 @@ export default function TransactionsPage() {
     accountFilter: "",
     categoryFilter: "",
     sortMode: "date-desc",
-    filterDate: "",
+    filterDate: format(new Date(), "yyyy-MM-dd"),
   })
 
   const handleEdit = (tx: Transaction) => {

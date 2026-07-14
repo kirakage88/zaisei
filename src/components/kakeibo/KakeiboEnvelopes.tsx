@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react"
+import { useState, useEffect, useMemo } from "react"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/lib/db"
 import { Card, CardContent } from "@/components/ui/card"
@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { formatCurrency } from "@/lib/utils"
 import { useKakeibo, autoCalcAllocations } from "@/hooks/useKakeibo"
+import { useAccounts } from "@/hooks/useAccounts"
 import type { KakeiboMonth } from "@/types/kakeibo"
 
 interface KakeiboEnvelopesProps {
@@ -14,7 +15,7 @@ interface KakeiboEnvelopesProps {
   isClosing: boolean
 }
 
-function useAutoIncome(month: KakeiboMonth) {
+function useAutoIncome(month: KakeiboMonth, includedIds: Set<number>) {
   const startOfMonth = new Date(month.year, month.month - 1, 1)
   const endOfMonth = new Date(month.year, month.month, 0, 23, 59, 59, 999)
 
@@ -26,13 +27,13 @@ function useAutoIncome(month: KakeiboMonth) {
 
     let income = 0
     for (const tx of txs) {
-      if (tx.type === "income") income += tx.amount
+      if (tx.type === "income" && includedIds.has(tx.accountId)) income += tx.amount
     }
     return income
-  }, [month.year, month.month]) ?? 0
+  }, [month.year, month.month, includedIds]) ?? 0
 }
 
-function useAutoSpent(month: KakeiboMonth) {
+function useAutoSpent(month: KakeiboMonth, includedIds: Set<number>) {
   const startOfMonth = new Date(month.year, month.month - 1, 1)
   const endOfMonth = new Date(month.year, month.month, 0, 23, 59, 59, 999)
 
@@ -48,21 +49,27 @@ function useAutoSpent(month: KakeiboMonth) {
 
     for (const tx of txs) {
       if (tx.type !== "expense") continue
+      if (!includedIds.has(tx.accountId)) continue
       if (tx.kakeiboTag === "needs") needs += tx.amount
       else if (tx.kakeiboTag === "wants") wants += tx.amount
       else if (tx.kakeiboTag === "savings") savings += tx.amount
     }
 
     return { needs, wants, savings }
-  }, [month.year, month.month])
+  }, [month.year, month.month, includedIds])
 
   return spent ?? { needs: month.needsSpent, wants: month.wantsSpent, savings: month.savingsSpent }
 }
 
 export function KakeiboEnvelopes({ month, onCloseMonth, isClosing }: KakeiboEnvelopesProps) {
   const { updateMonth } = useKakeibo()
-  const spent = useAutoSpent(month)
-  const autoIncome = useAutoIncome(month)
+  const { accounts } = useAccounts()
+  const includedIds = useMemo(
+    () => new Set(accounts.filter((a) => !a.isArchived && a.kakeiboIncluded !== false).map((a) => a.id!)),
+    [accounts]
+  )
+  const spent = useAutoSpent(month, includedIds)
+  const autoIncome = useAutoIncome(month, includedIds)
   const [isEditingIncome, setIsEditingIncome] = useState(false)
   const [incomeDraft, setIncomeDraft] = useState("")
   const [isSavingIncome, setIsSavingIncome] = useState(false)
@@ -198,9 +205,12 @@ export function KakeiboEnvelopes({ month, onCloseMonth, isClosing }: KakeiboEnve
                 </div>
                 {isOver ? (
                   <div className="relative h-2.5 rounded-full bg-muted overflow-hidden">
-                    <div className="absolute inset-0 stripe-pattern rounded-full" />
                     <div
-                      className="absolute right-0 top-0 bottom-0 bg-negative rounded-r-full flex items-center justify-center"
+                      className={`absolute inset-y-0 left-0 rounded-full ${env.color}`}
+                      style={{ width: "100%" }}
+                    />
+                    <div
+                      className="absolute inset-y-0 left-0 bg-negative rounded-r-full flex items-center justify-center"
                       style={{ width: `${overPct}%` }}
                     >
                       {overPct > 12 && (

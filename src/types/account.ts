@@ -6,6 +6,9 @@ export interface Account {
   color: string
   icon: string
   isArchived: boolean
+  order: number
+  kakeiboIncluded: boolean
+  netWorthIncluded: boolean
   createdAt: Date
   updatedAt: Date
 }
