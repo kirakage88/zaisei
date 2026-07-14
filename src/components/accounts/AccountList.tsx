@@ -80,7 +80,7 @@ export function AccountList() {
     <div>
       <div className="flex items-center justify-between mb-4">
         <Tabs value={tab} onValueChange={(v) => setTab(v as "active" | "archived")}>
-          <TabsList>
+          <TabsList className="select-none">
             <TabsTrigger value="active">
               Active ({activeAccounts.length})
             </TabsTrigger>
@@ -115,7 +115,7 @@ export function AccountList() {
             items={displayAccounts.map((a) => a.id!)}
             strategy={rectSortingStrategy}
           >
-            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 select-none">
               {displayAccounts.map((account) => (
                 <SortableAccountCard
                   key={account.id}
