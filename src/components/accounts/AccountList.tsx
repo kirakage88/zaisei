@@ -5,6 +5,7 @@ import {
   closestCenter,
   KeyboardSensor,
   PointerSensor,
+  TouchSensor,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -33,11 +34,9 @@ export function AccountList() {
 
   const isTouch = typeof window !== "undefined" && "ontouchstart" in window
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: isTouch
-        ? { delay: 1000, tolerance: 10 }
-        : { distance: 8 },
-    }),
+    isTouch
+      ? useSensor(TouchSensor, { activationConstraint: { delay: 500, tolerance: 10 } })
+      : useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
