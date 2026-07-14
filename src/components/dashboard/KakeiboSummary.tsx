@@ -1,10 +1,12 @@
+import { useMemo } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { formatCurrency } from "@/lib/utils"
 import { useKakeibo } from "@/hooks/useKakeibo"
+import { useAccounts } from "@/hooks/useAccounts"
 import { useLiveQuery } from "dexie-react-hooks"
 import { db } from "@/lib/db"
 
-function useAutoSpent(year: number, month: number) {
+function useAutoSpent(year: number, month: number, includedIds: Set<number>) {
   const startOfMonth = new Date(year, month - 1, 1)
   const endOfMonth = new Date(year, month, 0, 23, 59, 59, 999)
 
@@ -20,17 +22,24 @@ function useAutoSpent(year: number, month: number) {
 
     for (const tx of txs) {
       if (tx.type !== "expense") continue
+      if (!includedIds.has(tx.accountId)) continue
       if (tx.kakeiboTag === "needs") needs += tx.amount
       else if (tx.kakeiboTag === "wants") wants += tx.amount
       else if (tx.kakeiboTag === "savings") savings += tx.amount
     }
 
     return { needs, wants, savings }
-  }, [year, month]) ?? { needs: 0, wants: 0, savings: 0 }
+  }, [year, month, includedIds]) ?? { needs: 0, wants: 0, savings: 0 }
 }
 
 export function KakeiboSummary() {
   const { months } = useKakeibo()
+  const { accounts } = useAccounts()
+
+  const includedIds = useMemo(
+    () => new Set(accounts.filter((a) => !a.isArchived && a.kakeiboIncluded !== false).map((a) => a.id!)),
+    [accounts]
+  )
 
   const now = new Date()
   const currentMonth = months.find(
@@ -39,7 +48,8 @@ export function KakeiboSummary() {
 
   const spent = useAutoSpent(
     currentMonth?.year ?? now.getFullYear(),
-    currentMonth?.month ?? now.getMonth() + 1
+    currentMonth?.month ?? now.getMonth() + 1,
+    includedIds
   )
 
   if (!currentMonth) {

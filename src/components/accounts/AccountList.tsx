@@ -1,5 +1,5 @@
 import { useState } from "react"
-import { Plus, Archive, LayoutGrid, List } from "lucide-react"
+import { Plus, Archive } from "lucide-react"
 import {
   DndContext,
   closestCenter,
@@ -19,39 +19,20 @@ import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { SortableAccountCard } from "@/components/accounts/SortableAccountCard"
 import { AccountForm } from "@/components/accounts/AccountForm"
 import { useAccounts } from "@/hooks/useAccounts"
-import { cn } from "@/lib/utils"
 import type { Account } from "@/types/account"
-
-type ViewMode = "comfortable" | "compact"
-const VIEW_MODE_KEY = "accounts-view-mode"
-
-function getStoredViewMode(): ViewMode {
-  try {
-    const stored = localStorage.getItem(VIEW_MODE_KEY)
-    if (stored === "compact" || stored === "comfortable") return stored
-  } catch {}
-  return "comfortable"
-}
 
 export function AccountList() {
   const { accounts, archiveAccount, deleteAccount, reorderAccounts } = useAccounts()
   const [formOpen, setFormOpen] = useState(false)
   const [editingAccount, setEditingAccount] = useState<Account | null>(null)
   const [tab, setTab] = useState<"active" | "archived">("active")
-  const [viewMode, setViewMode] = useState<ViewMode>(getStoredViewMode)
 
   const activeAccounts = accounts.filter((a) => !a.isArchived)
   const archivedAccounts = accounts.filter((a) => a.isArchived)
   const displayAccounts = tab === "active" ? activeAccounts : archivedAccounts
-  const compact = viewMode === "compact"
 
-  const isTouch = typeof window !== "undefined" && "ontouchstart" in window
   const sensors = useSensors(
-    useSensor(PointerSensor, {
-      activationConstraint: isTouch
-        ? { delay: 1500, tolerance: 5 }
-        : { distance: 5 },
-    }),
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
@@ -63,14 +44,6 @@ export function AccountList() {
   const handleFormClose = () => {
     setFormOpen(false)
     setEditingAccount(null)
-  }
-
-  const toggleViewMode = () => {
-    const next = compact ? "comfortable" : "compact"
-    setViewMode(next)
-    try {
-      localStorage.setItem(VIEW_MODE_KEY, next)
-    } catch {}
   }
 
   const handleDragEnd = (event: DragEndEvent) => {
@@ -106,32 +79,16 @@ export function AccountList() {
   return (
     <div>
       <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-3">
-          <Tabs value={tab} onValueChange={(v) => setTab(v as "active" | "archived")}>
-            <TabsList>
-              <TabsTrigger value="active">
-                Active ({activeAccounts.length})
-              </TabsTrigger>
-              <TabsTrigger value="archived">
-                Archived ({archivedAccounts.length})
-              </TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={toggleViewMode}
-            className="text-muted-foreground"
-            title={compact ? "Comfortable view" : "Compact view"}
-          >
-            {compact ? (
-              <LayoutGrid className="size-4" />
-            ) : (
-              <List className="size-4" />
-            )}
-          </Button>
-        </div>
+        <Tabs value={tab} onValueChange={(v) => setTab(v as "active" | "archived")}>
+          <TabsList>
+            <TabsTrigger value="active">
+              Active ({activeAccounts.length})
+            </TabsTrigger>
+            <TabsTrigger value="archived">
+              Archived ({archivedAccounts.length})
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
 
         <Button onClick={() => setFormOpen(true)}>
           <Plus className="size-4 mr-2" />
@@ -158,14 +115,7 @@ export function AccountList() {
             items={displayAccounts.map((a) => a.id!)}
             strategy={rectSortingStrategy}
           >
-            <div
-              className={cn(
-                "grid gap-4",
-                compact
-                  ? "grid-cols-1 md:grid-cols-2 lg:grid-cols-4"
-                  : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"
-              )}
-            >
+            <div className="grid gap-4 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
               {displayAccounts.map((account) => (
                 <SortableAccountCard
                   key={account.id}
@@ -173,7 +123,6 @@ export function AccountList() {
                   onEdit={handleEdit}
                   onArchive={archiveAccount}
                   onDelete={deleteAccount}
-                  compact={compact}
                 />
               ))}
             </div>

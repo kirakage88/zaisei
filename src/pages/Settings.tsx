@@ -260,7 +260,7 @@ export default function SettingsPage() {
             <div className="space-y-2 text-sm text-muted-foreground">
               <div className="flex justify-between">
                 <span>Version</span>
-                <span className="tabular-nums">v0.7.1</span>
+                <span className="tabular-nums">v0.7.3</span>
               </div>
               <div className="flex justify-between">
                 <span>Storage</span>

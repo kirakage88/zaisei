@@ -8,7 +8,6 @@ interface SortableAccountCardProps {
   onEdit: (account: Account) => void
   onArchive: (id: number) => void
   onDelete: (id: number) => void
-  compact?: boolean
 }
 
 export function SortableAccountCard({
@@ -16,7 +15,6 @@ export function SortableAccountCard({
   onEdit,
   onArchive,
   onDelete,
-  compact,
 }: SortableAccountCardProps) {
   const {
     attributes,
@@ -30,18 +28,20 @@ export function SortableAccountCard({
   const style = {
     transform: CSS.Transform.toString(transform),
     transition,
-    opacity: isDragging ? 0.5 : 1,
+    opacity: isDragging ? 0.6 : 1,
+    scale: isDragging ? "0.95" : "1",
+    filter: isDragging ? "blur(2px)" : "none",
+    boxShadow: isDragging ? "0 0 20px 4px var(--accent-active)" : "none",
     zIndex: isDragging ? 10 : undefined,
   }
 
   return (
-    <div ref={setNodeRef} style={style}>
+    <div ref={setNodeRef} style={style} className="touch-none">
       <AccountCard
         account={account}
         onEdit={onEdit}
         onArchive={onArchive}
         onDelete={onDelete}
-        compact={compact}
         dragHandleProps={{ ...attributes, ...listeners }}
         isDragging={isDragging}
       />
