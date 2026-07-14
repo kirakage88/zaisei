@@ -31,8 +31,13 @@ export function AccountList() {
   const archivedAccounts = accounts.filter((a) => a.isArchived)
   const displayAccounts = tab === "active" ? activeAccounts : archivedAccounts
 
+  const isTouch = typeof window !== "undefined" && "ontouchstart" in window
   const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(PointerSensor, {
+      activationConstraint: isTouch
+        ? { delay: 1000, tolerance: 10 }
+        : { distance: 8 },
+    }),
     useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
   )
 
